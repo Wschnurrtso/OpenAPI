@@ -58,21 +58,24 @@ def handle_list(list_id):
     if not list_item:
         abort(404)
     if request.method == 'GET':
-        # find all todo entries for the todo list with the given id
-        print('Returning todo list...')
-        return jsonify([i for i in todos if i['list'] == list_id])
+        # return ToDo list with given id
+        print('Gebe ToDo-Liste zurück...')
+        return jsonify(list_item), 200
     elif request.method == 'DELETE':
         # delete list with given id
-        print('Deleting todo list...')
+        print('Lösche ToDo-Liste...')
         todo_lists.remove(list_item)
-        return '', 200
+        return jsonify('Anfrage erfolgreich'), 200
 
 # define endpoint for adding a new list
 @app.route('/todo-list', methods=['POST'])
 def add_new_list():
     # make JSON from POST data (even if content type is not set correctly)
     new_list = request.get_json(force=True)
-    print('Got new list to be added: {}'.format(new_list))
+    print('Hinzuzufügende Liste erhalten: {}'.format(new_list))
+    # Validate the input data
+    if not new_list or 'name' not in new_list or not new_list['name'].strip():
+        abort(400, description="Ungültige Eingabe: 'name' ist erforderlich und darf nicht leer sein.")
     # create id for new list, save it and return the list with id
     new_list['id'] = str(uuid.uuid4())
     todo_lists.append(new_list)
@@ -81,7 +84,7 @@ def add_new_list():
 # define endpoint for adding a new entry to a list
 @app.route('/todo-list/<list_id>/entry', methods=['POST'])
 def add_new_entry(list_id):
-     # find todo list depending on given list id
+    # find todo list depending on given list id
     list_item = None
     for l in todo_lists:
         if l['id'] == list_id:
@@ -92,7 +95,10 @@ def add_new_entry(list_id):
         abort(404)
     # make JSON from POST data (even if content type is not set correctly)
     new_entry = request.get_json(force=True)
-    print('Got new entry to be added: {}'.format(new_entry))
+    print('Hinzuzufügenden Eintrag erhalten: {}'.format(new_entry))
+    # Validate the input data
+    if not new_entry or 'name' not in new_entry or not new_entry['name'].strip():
+        abort(400, description="Ungültige Eingabe: 'name' ist erforderlich und darf nicht leer sein.")
     # create id for new entry, set list id, save it and return the entry with the id
     new_entry['id'] = str(uuid.uuid4())
     new_entry['list'] = list_id
@@ -102,7 +108,7 @@ def add_new_entry(list_id):
 # define endpoint for getting all lists
 @app.route('/todo-lists', methods=['GET'])
 def get_all_lists():
-    return jsonify(todo_lists)
+    return jsonify(todo_lists), 200
 
 # define endpoint for getting all entries of a todo list
 @app.route('/todo-list/<list_id>/entries', methods=['GET'])
@@ -135,9 +141,9 @@ def delete_entry(list_id, entry_id):
     if not entry_item:
         abort(404)
     # delete entry with given id
-    print('Deleting todo entry...')
+    print('Lösche ToDo-Eintrag...')
     todos.remove(entry_item)
-    return '', 200
+    return jsonify('Anfrage erfolgreich'), 200
 
 # define endpoint for updating an entry of a todo list
 @app.route('/todo-list/<list_id>/entry/<entry_id>', methods=['PUT'])
@@ -162,7 +168,10 @@ def update_entry(list_id, entry_id):
         abort(404)
     # make JSON from POST data (even if content type is not set correctly)
     new_entry = request.get_json(force=True)
-    print('Got new entry to be updated: {}'.format(new_entry))
+    print('Zu aktualisierenden Eintrag erhalten: {}'.format(new_entry))
+    # Validate the input data
+    if not new_entry or 'name' not in new_entry or not new_entry['name'].strip():
+        abort(400, description="Ungültige Eingabe: 'name' ist erforderlich und darf nicht leer sein.")
     # update the entry with the new data and return it with the id
     entry_item.update(new_entry)
     return jsonify(entry_item), 200
