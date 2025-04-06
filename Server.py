@@ -46,7 +46,7 @@ def apply_cors_header(response):
     return response
 
 # define endpoint for getting and deleting existing todo lists
-@app.route('/list/<list_id>', methods=['GET', 'DELETE'])
+@app.route('/todo-list/<list_id>', methods=['GET', 'DELETE'])
 def handle_list(list_id):
     # find todo list depending on given list id
     list_item = None
@@ -67,7 +67,6 @@ def handle_list(list_id):
         todo_lists.remove(list_item)
         return '', 200
 
-
 # define endpoint for adding a new list
 @app.route('/todo-list', methods=['POST'])
 def add_new_list():
@@ -79,12 +78,10 @@ def add_new_list():
     todo_lists.append(new_list)
     return jsonify(new_list), 200
 
-
 # define endpoint for getting all lists
 @app.route('/todo-lists', methods=['GET'])
 def get_all_lists():
     return jsonify(todo_lists)
-
 
 if __name__ == '__main__':
     # start Flask server
