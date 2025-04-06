@@ -1,0 +1,398 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Todo-Listenverwaltung API
+  description: API zur Verwaltung von Todo-Listen und deren Einträgen
+
+  contact:
+    name: Wilhelm Schnurr
+    email: wschnurr@tso.de
+
+externalDocs:
+  description: Entwurf und Implementierung einer REST-Schnittstelle
+  url: https://bbs-brinkstrasse.moodle-nds.de/pluginfile.php/317062/mod_resource/content/1/OpenAPI-Spezifikation%20v02.pdf
+
+servers:
+  - url: http://127.0.0.1:5000
+  
+tags:
+  - name: Todo-Listenverwaltung
+    description: Alle Endpunkte unserer Open-API Spezifikation 
+    externalDocs:
+      description: Endpunkte der REST-API
+      url: https://bbs-brinkstrasse.moodle-nds.de/pluginfile.php/344401/mod_resource/content/1/OpenAPI-Spezifikation%20%28IFA32%29.pdf
+
+paths:
+
+  /todo-list:
+    post:
+      tags:
+        - Todo-Listenverwaltung
+      summary: Todo-Liste hinzufügen
+      description: Dieser Endpunkt erstellt eine neue Todo-Liste
+      operationId: createTodoList 
+      
+      requestBody:
+        description: JSON-Objekt mit dem Namen der Liste
+        required: true
+        content:
+          application/json:
+            schema:
+               $ref: '#/components/schemas/NewTodo-List'
+               
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo-List'
+        '400':
+          $ref: '#/components/responses/400'
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /todo-list/{list_id}:
+    get:
+      tags:
+        - Todo-Listenverwaltung
+      summary: Todo-Liste abrufen
+      description: Dieser Endpunkt liefert eine einzelne bestimmte Todo-Liste anhand der ID zurück
+      operationId: getTodoList
+      
+      parameters:
+      - $ref: '#/components/parameters/listid'
+          
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo-List'  
+        '404':
+          $ref: '#/components/responses/404' 
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+      
+    delete:    
+      tags:
+        - Todo-Listenverwaltung
+      summary: Todo-Liste löschen
+      description: Dieser Endpunkt löscht eine Todo-Liste mit all ihren Einträgen anhand der ID
+      operationId: deleteTodoList
+      
+      parameters:
+      - $ref: '#/components/parameters/listid'
+          
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+        '404':
+          $ref: '#/components/responses/404'   
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+        
+  /todo-lists:
+    get:
+      tags:
+        - Todo-Listenverwaltung
+      summary: Todo-Listen abrufen
+      description: Dieser Endpunkt liefert eine Liste aller Todo-Listen.
+      operationId: getallTodoList
+      
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo-List'      
+              example:
+                - id: "d78d4f14-ddcb-416d-a2d2-31d640dd4ccc"
+                  name: "Einkaufsliste"
+                - id: "9a5554ea-d523-4e39-87a8-4b34770401e0"
+                  name: "Hausaufgabenliste"
+                - id: "6c144572-44ce-42f6-a551-d180fa9afcdc"
+                  name: "Projekteliste"
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+                  
+  /todo-list/{list_id}/entries:
+    get:
+      tags:
+        - Todo-Listenverwaltung
+      summary: Einträge abrufen
+      description: Dieser Endpunkt liefert eine Liste aller Einträge einer bestimmten Todo-Liste zurück
+      operationId: getallEntries
+      
+      parameters:
+      - $ref: '#/components/parameters/listid'
+      
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entries'  
+              example:
+              - id: '13ba1ba6-4058-4780-a947-131e5ccc86ca'
+                name: 'Brot'
+                description: 'glutenfrei'
+              - id: '820c92ac-b80a-44ed-9d53-e851ab9240c9'
+                name: 'Pizza'
+                description: 'Nur Margherita'
+              - id: '1e81b8ac-efd6-493c-991f-f9c8317a3e14'
+                name: 'Eis'
+                description: '3 Packungen von Magnum'
+        '404':
+          $ref: '#/components/responses/404' 
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+          
+  /todo-list/{list_id}/entry:
+    post:
+      tags:
+        - Todo-Listenverwaltung
+      summary: Eintrag erstellen
+      description: Dieser Endpunkt erstellt einen neuen Eintrag in einer bestimmten Todo-Liste
+      operationId: createEntry
+      
+      parameters:
+      - $ref: '#/components/parameters/listid'
+      
+      requestBody:
+        description: JSON-Objekt mit dem Namen und der Beschreibung des Eintrags
+        required: true
+        content:
+          application/json:
+            schema:
+               $ref: '#/components/schemas/NewEntry'
+               
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entries' 
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404' 
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+  
+  /todo-list/{list_id}/entry/{entry_id}:
+    put:
+      tags:
+        - Todo-Listenverwaltung
+      summary: Eintrag aktualisieren
+      description: Dieser Endpunkt aktualisiert einen bestimmten Eintrag in einer bestimmten Todo-Liste
+      operationId: updateEntry
+      
+      parameters:
+      - $ref: '#/components/parameters/listid'
+      - $ref: '#/components/parameters/entryid'
+      
+      requestBody:
+        description: JSON-Objekt mit dem Namen und der Beschreibung des Eintrags
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEntry'
+               
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: ID des Eintrags
+                    example: 13ba1ba6-4058-4780-a947-131e5ccc86ca
+                  name:
+                    type: string
+                    description: Name des Eintrags
+                    example: Dunkelbrot
+                  description:
+                    type: string
+                    description: Beschreibung des Eintrags
+                    example: glutenfrei und geschnitten
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404' 
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+
+    delete:
+      tags:
+        - Todo-Listenverwaltung
+      summary: Eintrag löschen
+      description: Dieser Endpunkt löscht einen bestimmten Eintrag in einer bestimmten Todo-Liste
+      operationId: deleteEntry
+      
+      parameters:
+      - $ref: '#/components/parameters/listid'
+      - $ref: '#/components/parameters/entryid'
+               
+      responses:
+        '200':
+          $ref: '#/components/responses/200'
+        '400':
+          $ref: '#/components/responses/400'
+        '404':
+          $ref: '#/components/responses/404' 
+        '405':
+          $ref: '#/components/responses/405'
+        '500':
+          $ref: '#/components/responses/500'
+    
+components:
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Anfrage erfolgreich
+    400:
+     description: Fehlerhafte Anfrage
+     content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Anfrage ungültig
+    404:
+      description: Nicht gefunden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Server konnte die angeforderte Ressource nicht finden
+    405:
+      description: Methode nicht erlaubt
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Zielressource kann mit der genutzten Methode nicht abgerufen werden, obwohl diese dem Server bekannt ist
+                
+    500:
+      description: Interner Serverfehler
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Interner Serverfehler
+                
+  parameters:
+    listid:
+      name: list_id
+      description: URL-Element; ID der gewünschten Todo-Liste
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        
+    entryid:
+      name: entry_id
+      description: URL-Element; ID des gewünschten Eintrags
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        
+  schemas:
+    NewTodo-List:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name der neuen Todo-Liste
+          example: Einkaufsliste
+          
+    Todo-List:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID der Todo-Liste
+          example: d78d4f14-ddcb-416d-a2d2-31d640dd4ccc
+        name:
+          type: string
+          description: Name der Todo-Liste
+          example: Einkaufsliste
+          
+    NewEntry:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name des Eintrags
+          example: Würstchen
+        description:
+          type: string
+          description: Beschreibung des Eintrags
+          example: vegan
+          
+    Entries:
+      type: object 
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID des Eintrags
+          example: 13ba1ba6-4058-4780-a947-131e5ccc86ca
+        name:
+          type: string
+          description: Name des Eintrags
+          example: Würstchen
+        description:
+          type: string
+          description: Beschreibung des Eintrags
+          example: vegan
