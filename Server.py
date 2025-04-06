@@ -113,6 +113,32 @@ def get_all_entries_of_list(list_id):
             entries_array.append(entry)
     return jsonify(entries_array)
 
+# define endpoint for deleting an entry of a todo list
+@app.route('/todo-list/<list_id>/entry/<entry_id>', methods=['DELETE'])
+def delete_entry(list_id, entry_id):
+    # find todo list depending on given list id
+    list_item = None
+    for l in todo_lists:
+        if l['id'] == list_id:
+            list_item = l
+            break
+    # if the given list id is invalid, return status code 404
+    if not list_item:
+        abort(404)
+    # find todo entry depending on given entry id
+    entry_item = None
+    for entry in todos:
+        if entry['id'] == entry_id and entry['list'] == list_id:
+            entry_item = entry
+            break
+    # if the given entry id is invalid, return status code 404
+    if not entry_item:
+        abort(404)
+    # delete entry with given id
+    print('Deleting todo entry...')
+    todos.remove(entry_item)
+    return '', 200
+
 if __name__ == '__main__':
     # start Flask server
     app.debug = True
