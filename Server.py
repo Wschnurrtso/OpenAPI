@@ -104,6 +104,15 @@ def add_new_entry(list_id):
 def get_all_lists():
     return jsonify(todo_lists)
 
+# define endpoint for getting all entries of a todo list
+@app.route('/todo-list/<list_id>/entries', methods=['GET'])
+def get_all_entries_of_list(list_id):
+    entries_array = []
+    for entry in todos:
+        if entry['list'] == list_id:
+            entries_array.append(entry)
+    return jsonify(entries_array)
+
 if __name__ == '__main__':
     # start Flask server
     app.debug = True
