@@ -41,7 +41,7 @@ todos = [
 @app.after_request
 def apply_cors_header(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,DELETE'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,DELETE,PUT'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
 
@@ -138,6 +138,34 @@ def delete_entry(list_id, entry_id):
     print('Deleting todo entry...')
     todos.remove(entry_item)
     return '', 200
+
+# define endpoint for updating an entry of a todo list
+@app.route('/todo-list/<list_id>/entry/<entry_id>', methods=['PUT'])
+def update_entry(list_id, entry_id):
+    # find todo list depending on given list id
+    list_item = None
+    for l in todo_lists:
+        if l['id'] == list_id:
+            list_item = l
+            break
+    # if the given list id is invalid, return status code 404
+    if not list_item:
+        abort(404)
+    # find todo entry depending on given entry id
+    entry_item = None
+    for entry in todos:
+        if entry['id'] == entry_id and entry['list'] == list_id:
+            entry_item = entry
+            break
+    # if the given entry id is invalid, return status code 404
+    if not entry_item:
+        abort(404)
+    # make JSON from POST data (even if content type is not set correctly)
+    new_entry = request.get_json(force=True)
+    print('Got new entry to be updated: {}'.format(new_entry))
+    # update the entry with the new data and return it with the id
+    entry_item.update(new_entry)
+    return jsonify(entry_item), 200
 
 if __name__ == '__main__':
     # start Flask server
